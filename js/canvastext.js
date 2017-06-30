@@ -124,7 +124,7 @@ var dot;
         ball.vx=105-x;
         ball.vy=-(y-500)*3;
 
-        drawballsport();
+        drawballsport();//开始画抛物线
     }
 
     function drawballsport(){
