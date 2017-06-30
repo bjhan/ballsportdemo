@@ -1,10 +1,10 @@
 /**
  * Created by Administrator on 2017/6/29.
  */
-var touchflag = 0;
-var jiaflag = 0;
-var yuejie = 0;
-var fenshu=0;
+var touchflag = 0;//作为鼠标松开后 脱离鼠标事件的标志 当然也可以移出监听实现功能
+var jiaflag = 0;//作为鼠标松开时 不在画小球到拉扯框的虚线
+var yuejie = 0;//作为小球出界后的标志
+var fenshu=0;//记录分数
 var loop;
 var dot;
 (function () {
@@ -16,14 +16,13 @@ var dot;
         console.log('不支持canvas');
     }
 
-
     var WIDTH = canvas.width = 1000;
     var HEIGHT = canvas.height = 600;
 
-    var dots=[];
-    var initx=105;
+    var dots=[];//存放小球的轨迹
+    var initx=105;//记录小球初始位置
     var inity=500;
-    var ball = {
+    var ball = {//初始化小球
         x: 105,
         y: 500,
         r:20,
@@ -32,9 +31,9 @@ var dot;
         vy:-40
     }
 
-    drawball(context,ball.x,ball.y);
+    drawball(context,ball.x,ball.y);//先初始化画出一个小球
 
-    document.getElementById('cleartrac').addEventListener('click',function(){
+    document.getElementById('cleartrac').addEventListener('click',function(){//监听清空小球轨迹
         dots=[];//清空数组
         drawball(context,ball.x,ball.y);
     });
@@ -66,7 +65,6 @@ var dot;
         if((y+20) > 550){
             y=530;
         }
-
         ball.x=x;
         ball.y=y;
         drawball(context,ball.x,ball.y);
@@ -74,7 +72,6 @@ var dot;
 
     function touchMove(e){
         if(touchflag == 1){
-
             var x,y;
             x = e.pageX - canvas.offsetLeft;
             y = e.pageY - canvas.offsetTop;
@@ -91,13 +88,10 @@ var dot;
             if((y+20) > 550){
                 y=530;
             }
-
             ball.x=x;
             ball.y=y;
             drawball(context,ball.x,ball.y);
         }
-
-
     }
 
     function stopdraw2(e) {
@@ -152,7 +146,7 @@ var dot;
            }
        },50);
     }
-    function drawball(cxt,x,y){
+    function drawball(cxt,x,y){//画小球
         cxt.clearRect(0,0,context.canvas.width,context.canvas.height);
 
         lankuang();
@@ -172,7 +166,6 @@ var dot;
             Curve(cxt,x,y);
         }
 
-
         cxt.beginPath();
         cxt.arc(x,y,ball.r,0,2*Math.PI);
         cxt.strokeStyle="#000000";
@@ -190,7 +183,7 @@ var dot;
 
     }
 
-    function drawText(){
+    function drawText(){//分数文字
         var gradient=context.createLinearGradient(0,0,canvas.width,0);
         gradient.addColorStop("0","magenta");
         gradient.addColorStop("0.5","blue");
@@ -201,7 +194,7 @@ var dot;
         context.fillStyle=gradient;
         context.fillText(fenshu, WIDTH / 2, HEIGHT / 2);
     }
-    function drawrac(cxt,x,y){
+    function drawrac(cxt,x,y){//轨迹小球的绘画
         cxt.beginPath();
         context.setLineDash([]);
         cxt.arc(x,y,3,0,2*Math.PI);
@@ -210,7 +203,7 @@ var dot;
         cxt.closePath();
     }
 
-    function Curve(cxt,x,y){
+    function Curve(cxt,x,y){//小球在拉扯框内的抛物虚线
         //绘制二次方贝塞尔曲线
         var postion = panduandian(x,y);
         context.setLineDash([5, 15]);
@@ -239,13 +232,12 @@ var dot;
             cxt.moveTo(x,y);
             cxt.quadraticCurveTo(x,y,180,550);
         }
-
         cxt.stroke();
         cxt.globalCompositeOperation = 'source-over';    //目标图像上显示源图像
     }
 
 
-    function canvaskuang(){
+    function canvaskuang(){//画布的框
         context.beginPath();
         context.setLineDash([]);
         context.rect(0,0,context.canvas.width,context.canvas.height);
@@ -254,7 +246,7 @@ var dot;
         context.closePath();
     }
 
-    function aimkuang(){
+    function aimkuang(){//拉扯框
         context.beginPath();
         context.setLineDash([5, 15]);
         context.rect(30,450,150,100);
@@ -263,7 +255,7 @@ var dot;
         context.closePath();
     }
 
-    function panduandian(x,y){
+    function panduandian(x,y){//判断点在直线位置的函数 返回值>0 在上方 返回值<0 在下方  返回值=0 在直线上
 
         var a = 550-450;
         var b = 30-180;
@@ -271,33 +263,30 @@ var dot;
 
         return a*x+b*y+c
     }
-    function update(){
+    function update(){//通过简单的运动原理更新小球位置
         ball.x = ball.x + ball.vx;
         ball.y = ball.y + ball.vy;
         ball.vy = ball.vy + ball.g;
 
-        if( ball.y > (600 - ball.r)){
+        if( ball.y > (600 - ball.r)){//下边框碰撞检测
             ball.y = 600 - ball.r;
             ball.vy = -ball.vy*0.5;
         }
-        //if( ball.x > (1000 - ball.r)){
-        //    ball.x = 1000 - ball.r;
-        //    ball.vx = -ball.vx;
-        //}
-        if( ball.x < (ball.r)){
+
+        if( ball.x < (ball.r)){//左边框碰撞检测
             ball.vx = -ball.vx;
         }
-        if( ball.y < (ball.r)){
+        if( ball.y < (ball.r)){//上边框碰撞检测
             ball.y = ball.r;
             ball.vy = -ball.vy*0.5;
         }
     }
 
-    function lankuang(){
+    function lankuang(){//椭圆框
         //椭圆
         context.beginPath();
         context.setLineDash([5,15]);
-        context.ellipse(850, 100, 40, 80, 1.55, 0, 2*Math.PI, true);//radiusX:x方向上半径,radiusY：x方向上半径,0.5:rotation：旋转角度
+        context.ellipse(850, 100, 40, 80, 1.55, 0, 2*Math.PI, true);
         context.closePath();
         context.strokeStyle = "#000000";
         context.stroke();
